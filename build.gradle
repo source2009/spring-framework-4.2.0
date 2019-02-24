@@ -1128,9 +1128,9 @@ project("spring-framework-bom") {
 	}
 }
 
-apply plugin: 'sonar-runner'
+// apply plugin: 'sonar-runner'
 
-sonarRunner {
+/*sonarRunner {
 	sonarProperties {
 		property "sonar.projectName", "Spring Framework"
 		property "sonar.profile", "Spring Framework"
@@ -1142,7 +1142,7 @@ sonarRunner {
 		property "sonar.links.scm_dev", linkScmDevConnection
 		property "sonar.java.coveragePlugin", "jacoco"
 	}
-}
+}*/
 
 configure(rootProject) {
 	description = "Spring Framework"
@@ -1388,19 +1388,11 @@ configure(rootProject) {
 }
 
 configure([project(':spring-build-src'), project(':spring-framework-bom')]) {
-	sonarRunner {
+	/*sonarRunner {
 		skipProject = true
-	}
+	}*/
 }
 
-configure(project(':spring-core')) {
-	sonarRunner {
-		sonarProperties {
-			property "sonar.exclusions",
-					"src/main/java/org/springframework/cglib/**/*,src/main/java/org/springframework/asm/**/*"
-		}
-	}
-}
 
 /*
  * Support publication of artifacts versioned by topic branch.

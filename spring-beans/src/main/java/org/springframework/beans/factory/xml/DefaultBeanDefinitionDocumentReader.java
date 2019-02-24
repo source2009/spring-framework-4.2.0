@@ -134,6 +134,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
             }
         }
 
+        // DefaultBeanDefinitionDocumentReader 中没有用 final 修饰。它是面向继承设计的，这两个方法正是为子类设计的。
         //模板方法，可用户自定义
         preProcessXml(root);
         parseBeanDefinitions(root, this.delegate);
@@ -157,19 +158,18 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
      *
      * @param root the DOM root element of the document
      */
-    //解析标签信息，并构造BeanDefinition注册。
+    //TODO  解析标签信息，并构造BeanDefinition注册。
     protected void parseBeanDefinitions(Element root, BeanDefinitionParserDelegate delegate) {
         if (delegate.isDefaultNamespace(root)) {
             NodeList nl = root.getChildNodes();
             for (int i = 0; i < nl.getLength(); i++) {
-                /**
-                 * node是xml配置中每一行的内容，包括空行
-                 */
+               // node是xml配置中每一行的内容，包括空行
                 Node node = nl.item(i);
                 if (node instanceof Element) {
                     Element ele = (Element) node;
                     if (delegate.isDefaultNamespace(ele)) {
-                        parseDefaultElement(ele, delegate);//解析<beans/>标签下的子标签，如<import>,<bean>,<alias>,<beans>
+                        //解析<beans/>标签下的子标签，如<import>,<bean>,<alias>,<beans>
+                        parseDefaultElement(ele, delegate);
                     } else {
                         //自定义标签，如：<aop:config>,<context:component-scan>等
                         delegate.parseCustomElement(ele);
