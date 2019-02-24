@@ -518,7 +518,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
         //返回DefaultListableBeanFactory中beanDefinitionMap的size。
         int countBefore = getRegistry().getBeanDefinitionCount();
         documentReader.registerBeanDefinitions(doc, createReaderContext(resource));
-        // 返回记录本次加载的BeanDefinition 个数
+        // 返回记录本次加载的BeanDefinition个数
         return getRegistry().getBeanDefinitionCount() - countBefore;
     }
 
