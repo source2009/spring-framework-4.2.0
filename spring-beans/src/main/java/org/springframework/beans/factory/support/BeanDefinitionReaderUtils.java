@@ -60,11 +60,14 @@ public class BeanDefinitionReaderUtils {
 		bd.setParentName(parentName);
 		if (className != null) {
 			if (classLoader != null) {
-				bd.setBeanClass(ClassUtils.forName(className, classLoader));       //设置Bean class
+				// classLoader 不为空，则使用以传入的 classLoader 同一虚拟机加载类对象，否则只是记录className
+				bd.setBeanClass(ClassUtils.forName(className, classLoader));
 			}
 			else {
-				bd.setBeanClassName(className);                                               //设置Bean className。
-			}                                                                                                     //beanClass和beanClassName都是设置的GenericBeanDefinition的beanClass属性。
+				//设置Bean className。
+				// beanClass和beanClassName都是设置的GenericBeanDefinition的beanClass属性。
+				bd.setBeanClassName(className);
+			}
 		}
 		return bd;
 	}
@@ -143,12 +146,12 @@ public class BeanDefinitionReaderUtils {
 			BeanDefinitionHolder definitionHolder, BeanDefinitionRegistry registry)
 			throws BeanDefinitionStoreException {
 
-		// Register bean definition under primary name.
+		// 使用 beanName 做唯一标识注册
 		String beanName = definitionHolder.getBeanName();
 		//将BeanDefinition注册到DefaultListableBeanFactory中的beanDefinitionMap，以beanName为key，BeanDefinition为value。
 		registry.registerBeanDefinition(beanName, definitionHolder.getBeanDefinition());
 
-		// Register aliases for bean name, if any.
+		// 注册所有别名
 		String[] aliases = definitionHolder.getAliases();
 		if (aliases != null) {
 			for (String alias : aliases) {
