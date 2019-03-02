@@ -94,36 +94,49 @@ class ConstructorResolver {
 	 * or {@code null} if none (-> use constructor argument values from bean definition)
 	 * @return a BeanWrapper for the new instance
 	 */
+	// 创建Bean～使用构造函数自动注入
 	public BeanWrapper autowireConstructor(final String beanName, final RootBeanDefinition mbd,
 			Constructor<?>[] chosenCtors, final Object[] explicitArgs) {
 
 		BeanWrapperImpl bw = new BeanWrapperImpl();
+		// 此方法并没有什么实质性的逻辑。Spring 把精力都放在构造函数以及参数的匹配上。
 		this.beanFactory.initBeanWrapper(bw);
 
 		Constructor<?> constructorToUse = null;
 		ArgumentsHolder argsHolderToUse = null;
 		Object[] argsToUse = null;
-
+		/*
+		 * explicitArgs 通过 getBean 方法传入
+		 * 如果 getBean 方法调用的时候指定方法参数那么直接使用
+		 */
 		if (explicitArgs != null) {
 			argsToUse = explicitArgs;
 		}
 		else {
+			// 如果在getBean 方法时候没有指定则尝试从配置文件中解析
 			Object[] argsToResolve = null;
+			// 尝试从缓存中获取
 			synchronized (mbd.constructorArgumentLock) {
 				constructorToUse = (Constructor<?>) mbd.resolvedConstructorOrFactoryMethod;
 				if (constructorToUse != null && mbd.constructorArgumentsResolved) {
-					// Found a cached constructor...
+					// 从缓存中取
 					argsToUse = mbd.resolvedConstructorArguments;
 					if (argsToUse == null) {
+						// 配置的构造函数参数
 						argsToResolve = mbd.preparedConstructorArguments;
 					}
 				}
 			}
+			// 如果缓存中存在
 			if (argsToResolve != null) {
+				/*
+				 * 解析参数类型，如给定方法的构造函数A(int,int) 则调用此方法会将配置中（"1"	,"1"）转换为（1,1）
+				 * 缓存中的值可能是原始值也可能是最终值。
+				 */
 				argsToUse = resolvePreparedArguments(beanName, mbd, bw, constructorToUse, argsToResolve);
 			}
 		}
-
+		// 没有被缓存
 		if (constructorToUse == null) {
 			// Need to resolve the constructor.
 			boolean autowiring = (chosenCtors != null ||
@@ -135,8 +148,11 @@ class ConstructorResolver {
 				minNrOfArgs = explicitArgs.length;
 			}
 			else {
+				// 提取配置文件中的配置的构造函数参数
 				ConstructorArgumentValues cargs = mbd.getConstructorArgumentValues();
+				// 用于承载解析后的构造函数参数的值
 				resolvedValues = new ConstructorArgumentValues();
+				// 能解析到的参数个数
 				minNrOfArgs = resolveConstructorArguments(beanName, mbd, bw, cargs, resolvedValues);
 			}
 
@@ -154,6 +170,7 @@ class ConstructorResolver {
 									"] from ClassLoader [" + beanClass.getClassLoader() + "] failed", ex);
 				}
 			}
+			// 排序给定的构造函数，public 构造函数优先参选数量降序、非public 构造函数数量降序
 			AutowireUtils.sortConstructors(candidates);
 			int minTypeDiffWeight = Integer.MAX_VALUE;
 			Set<Constructor<?>> ambiguousConstructors = null;
@@ -164,11 +181,14 @@ class ConstructorResolver {
 				Class<?>[] paramTypes = candidate.getParameterTypes();
 
 				if (constructorToUse != null && argsToUse.length > paramTypes.length) {
-					// Already found greedy constructor that can be satisfied ->
-					// do not look any further, there are only less greedy constructors left.
+					/*
+					 * 如果已经找到选用的构造函数或者需要的参数小于当前的构造函数参数个数则终止
+					 * 因为已经按照参数个数降序排序
+					 */
 					break;
 				}
 				if (paramTypes.length < minNrOfArgs) {
+					// 参数个数不相等
 					continue;
 				}
 
@@ -179,9 +199,11 @@ class ConstructorResolver {
 						if (paramNames == null) {
 							ParameterNameDiscoverer pnd = this.beanFactory.getParameterNameDiscoverer();
 							if (pnd != null) {
+								// 获取参数名称
 								paramNames = pnd.getParameterNames(candidate);
 							}
 						}
+						// 根据名称和数据类型创建参数持有者
 						argsHolder = createArgumentArray(
 								beanName, mbd, resolvedValues, bw, paramTypes, paramNames, candidate, autowiring);
 					}
@@ -258,16 +280,19 @@ class ConstructorResolver {
 				beanInstance = AccessController.doPrivileged(new PrivilegedAction<Object>() {
 					@Override
 					public Object run() {
+						// 实例化策略、（SimpleInstantiationStrategy 类）
 						return beanFactory.getInstantiationStrategy().instantiate(
 								mbd, beanName, beanFactory, ctorToUse, argumentsToUse);
 					}
 				}, beanFactory.getAccessControlContext());
 			}
 			else {
+				// 实例化策略（SimpleInstantiationStrategy 类）
 				beanInstance = this.beanFactory.getInstantiationStrategy().instantiate(
 						mbd, beanName, this.beanFactory, constructorToUse, argsToUse);
 			}
 
+			// 将构造的实例加入 BeanWrapper 中
 			bw.setWrappedInstance(beanInstance);
 			return bw;
 		}

@@ -836,6 +836,11 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
         if (beanDefinition instanceof AbstractBeanDefinition) {
             try {
+                /**
+                 * 注册前的最后一次校验，这里的校验不同于之前的XML文件校验
+                 * 主要是对于AbstractBeanDefinition 属性中的 methodOverrides 校验
+                 * 校验 methodOverrides 是否与工厂方法并存 methodOverrides 对应的方法根本不存在
+                 */
                 ((AbstractBeanDefinition) beanDefinition).validate();
             } catch (BeanDefinitionValidationException ex) {
                 throw new BeanDefinitionStoreException(beanDefinition.getResourceDescription(), beanName,
@@ -844,9 +849,11 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
         }
 
         BeanDefinition oldBeanDefinition;
-
+        // 因为beanDefinitionMap 是全局变量。
         oldBeanDefinition = this.beanDefinitionMap.get(beanName);
+       // 这里处理注册已经注册的 BeanName 的情况
         if (oldBeanDefinition != null) {
+            // 如果对应的BeanName 已经注册在配置中配置bean 不允许被覆盖，则抛出异常。
             if (!isAllowBeanDefinitionOverriding()) {
                 throw new BeanDefinitionStoreException(beanDefinition.getResourceDescription(), beanName,
                         "Cannot register bean definition [" + beanDefinition + "] for bean '" + beanName +
@@ -872,13 +879,16 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
                 }
             }
         } else {
+            // 记录 beanName
             this.beanDefinitionNames.add(beanName);
             this.manualSingletonNames.remove(beanName);
             this.frozenBeanDefinitionNames = null;
         }
+        // 注册 BeanDefinition
         this.beanDefinitionMap.put(beanName, beanDefinition);
 
         if (oldBeanDefinition != null || containsSingleton(beanName)) {
+            // 重置所有 beanName 对应的缓存
             resetBeanDefinition(beanName);
         }
     }
@@ -978,10 +988,13 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
         if (descriptor.getDependencyType().equals(javaUtilOptionalClass)) {
             return new OptionalDependencyFactory().createOptionalDependency(descriptor, beanName);
         } else if (ObjectFactory.class == descriptor.getDependencyType()) {
+            // ObjectFactory 类型注入的特殊处理
             return new DependencyObjectFactory(descriptor, beanName);
         } else if (javaxInjectProviderClass == descriptor.getDependencyType()) {
+            // javaxInjectProviderClass 类注入的特殊处理
             return new DependencyProviderFactory().createDependencyProvider(descriptor, beanName);
         } else {
+            // 通用处理逻辑
             Object result = getAutowireCandidateResolver().getLazyResolutionProxyIfNecessary(descriptor, beanName);
             if (result == null) {
                 result = doResolveDependency(descriptor, beanName, autowiredBeanNames, typeConverter);
@@ -994,6 +1007,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
                                       Set<String> autowiredBeanNames, TypeConverter typeConverter) throws BeansException {
 
         Class<?> type = descriptor.getDependencyType();
+        // 用于支持Spring 中 @Value 注解
         Object value = getAutowireCandidateResolver().getSuggestedValue(descriptor);
         if (value != null) {
             if (value instanceof String) {
@@ -1006,13 +1020,16 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
                     converter.convertIfNecessary(value, type, descriptor.getField()) :
                     converter.convertIfNecessary(value, type, descriptor.getMethodParameter()));
         }
-
+        // 属性是数组类型
         if (type.isArray()) {
             Class<?> componentType = type.getComponentType();
+            // 根据属性类型找到 BeanFactory 中所有类型的匹配Bean
+            // 返回值的构成 key=匹配，BeanName,value=BeanName 对应的实例化后的Bean
             DependencyDescriptor targetDesc = new DependencyDescriptor(descriptor);
             targetDesc.increaseNestingLevel();
             Map<String, Object> matchingBeans = findAutowireCandidates(beanName, componentType, targetDesc);
             if (matchingBeans.isEmpty()) {
+                // 如果 autowire 的 require 属性为true。二找到匹配的却为空只能抛出异常
                 if (descriptor.isRequired()) {
                     raiseNoSuchBeanDefinitionException(componentType, "array of " + componentType.getName(), descriptor);
                 }
@@ -1027,6 +1044,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
                 Arrays.sort((Object[]) result, adaptDependencyComparator(matchingBeans));
             }
             return result;
+            // 属性是 collection 类型
         } else if (Collection.class.isAssignableFrom(type) && type.isInterface()) {
             Class<?> elementType = descriptor.getCollectionType();
             if (elementType == null) {
@@ -1100,7 +1118,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
                 }
                 return matchingBeans.get(primaryBeanName);
             }
-            // We have exactly one match.
+            // 已经可以确定只有一个匹配项
             Map.Entry<String, Object> entry = matchingBeans.entrySet().iterator().next();
             if (autowiredBeanNames != null) {
                 autowiredBeanNames.add(entry.getKey());

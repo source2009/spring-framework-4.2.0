@@ -57,7 +57,11 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 
 	@Override
 	public Object instantiate(RootBeanDefinition bd, String beanName, BeanFactory owner) {
-		// Don't override the class with CGLIB if no overrides. 如果MethodOverride不为空，则使用cglib
+		/*
+		 * 如果MethodOverride不为空，则使用cglib
+		 * 如果有需要覆盖动态替换的方法则当然需要使用 cglib 进行动态代理。因为可以在创建代理的同时将动态方法注入类中。
+		 * 但是如果没有需要动态改变得方法。为了方便直接反射就可以。
+		 */
 		if (bd.getMethodOverrides().isEmpty()) {
 			Constructor<?> constructorToUse;
 			synchronized (bd.constructorArgumentLock) {
@@ -76,7 +80,8 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 								}
 							});
 						}
-						else {//反射获取无参的构造函数
+						else {
+							//反射获取无参的构造函数
 							constructorToUse =	clazz.getDeclaredConstructor((Class[]) null);
 						}
 						bd.resolvedConstructorOrFactoryMethod = constructorToUse;

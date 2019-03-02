@@ -42,7 +42,9 @@ public class SimpleAliasRegistry implements AliasRegistry {
      */
     private final Map<String, String> aliasMap = new ConcurrentHashMap<String, String>(16);
 
-
+    /**
+     *  通过别名注册 BeanDefinition
+     */
     @Override
     public void registerAlias(String name, String alias) {
         Assert.hasText(name, "'name' must not be empty");
@@ -59,6 +61,7 @@ public class SimpleAliasRegistry implements AliasRegistry {
                             name + "': It is already registered for name '" + registeredName + "'.");
                 }
             }
+            // 当 A->B 存在时，若再次出现 A->C->B 的时候会抛出异常
             checkForAliasCircle(name, alias);
             this.aliasMap.put(alias, name);
         }
