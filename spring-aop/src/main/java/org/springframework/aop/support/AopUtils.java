@@ -232,10 +232,12 @@ public abstract class AopUtils {
 	 * @return whether the pointcut can apply on any method
 	 */
 	public static boolean canApply(Advisor advisor, Class<?> targetClass, boolean hasIntroductions) {
-		if (advisor instanceof IntroductionAdvisor) {//类级别代理
+		//类级别代理
+		if (advisor instanceof IntroductionAdvisor) {
 			return ((IntroductionAdvisor) advisor).getClassFilter().matches(targetClass);
 		}
-		else if (advisor instanceof PointcutAdvisor) {//方法级别代理。
+		//方法级别代理。
+		else if (advisor instanceof PointcutAdvisor) {
 			PointcutAdvisor pca = (PointcutAdvisor) advisor;
 			//  1. 看被代理类是否满足匹配。
 			//  2. 看被代理类中的方法是否能够被aop:pointcut中的expression匹配，有一个方法满足即可，就做这一个方法的代理。
@@ -262,6 +264,7 @@ public abstract class AopUtils {
 		}
 		//用了链表
 		List<Advisor> eligibleAdvisors = new LinkedList<Advisor>();
+		// 首先处理引介增强
 		for (Advisor candidate : candidateAdvisors) {
 			if (candidate instanceof IntroductionAdvisor && canApply(candidate, clazz)) {
 				eligibleAdvisors.add(candidate);
@@ -269,6 +272,7 @@ public abstract class AopUtils {
 		}
 		boolean hasIntroductions = !eligibleAdvisors.isEmpty();
 		for (Advisor candidate : candidateAdvisors) {
+			// 引介增强已经处理
 			if (candidate instanceof IntroductionAdvisor) {
 				// already processed
 				continue;

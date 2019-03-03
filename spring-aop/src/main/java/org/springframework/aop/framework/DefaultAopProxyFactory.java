@@ -50,8 +50,8 @@ public class DefaultAopProxyFactory implements AopProxyFactory, Serializable {
 	public AopProxy createAopProxy(AdvisedSupport config) throws AopConfigException {
 		//proxy-target-class="true"或者<bean>对象没有实现任何接口或者只实现了SpringProxy接口使用cglib
 
-		//isOptimize表示spring自己去优化
-		//isProxyTargetClass方法为true，这表示配置了proxy-target-class="true"
+		//optimize 用来控制通过 CGLIB 创建的代理是否使用激进的优化策略。
+		// ProxyTargetClass方法为true，这表示配置了proxy-target-class="true"、CGLIB 代理将被创建
 		//hasNoUserSuppliedProxyInterfaces方法执行结果为true，这表示<bean>对象没有实现任何接口或者实现的接口是SpringProxy接口
 		if (config.isOptimize() || config.isProxyTargetClass() || hasNoUserSuppliedProxyInterfaces(config)) {
 			Class<?> targetClass = config.getTargetClass();

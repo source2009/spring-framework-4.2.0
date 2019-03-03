@@ -169,10 +169,17 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 				// The target does not implement the equals(Object) method itself.
 				return equals(args[0]);
 			}
+			// hash 方法的处理
 			if (!this.hashCodeDefined && AopUtils.isHashCodeMethod(method)) {
 				// The target does not implement the hashCode() method itself.
 				return hashCode();
 			}
+			/**
+			 * class 类的 isAssignableFrom() 方法：
+			 * 	如果调用这个方法 class 或接口与参数 cls 表示的类或接口相同
+			 * 	或者参数 cls 表示的类或者接口的父类。则返回true
+			 *
+			 */
 			if (!this.advised.opaque && method.getDeclaringClass().isInterface() &&
 					method.getDeclaringClass().isAssignableFrom(Advised.class)) {
 				// Service invocations on ProxyConfig with the proxy config...
@@ -204,18 +211,19 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 				// We can skip creating a MethodInvocation: just invoke the target directly
 				// Note that the final invoker must be an InvokerInterceptor so we know it does
 				// nothing but a reflective operation on the target, and no hot swapping or fancy proxying.
-				//无增强则反射直接调用原method
+				// 如果没有发现任何拦截器那么直接调用切点方法
 				retVal = AopUtils.invokeJoinpointUsingReflection(target, method, args);
 			}
 			else {
 				// We need to create a method invocation...
+				// 将拦截器封装在 reflectiveMethodInvocation 以便使用 procced 进行链接表拦截器
 				invocation = new ReflectiveMethodInvocation(proxy, target, method, args, targetClass, chain);
 				// Proceed to the joinpoint through the interceptor chain.
-				//递归调用链
+				// 执行拦截器链。TODO 重点方法
 				retVal = invocation.proceed();
 			}
 
-			// Massage return value if necessary.
+			// 返回结果
 			Class<?> returnType = method.getReturnType();
 			if (retVal != null && retVal == target && returnType.isInstance(proxy) &&
 					!RawTargetAccess.class.isAssignableFrom(method.getDeclaringClass())) {
