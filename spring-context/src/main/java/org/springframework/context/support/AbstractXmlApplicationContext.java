@@ -88,14 +88,17 @@ public abstract class AbstractXmlApplicationContext extends AbstractRefreshableC
 		//上面XmlBeanDefinitionReader beanDefinitionReader = new XmlBeanDefinitionReader(beanFactory);这一步中，
 		//会调用AbstractBeanDefinitionReader(BeanDefinitionRegistry registry)这个构造函数，里面也会对environment和ResourceLoader进行设置。
 		beanDefinitionReader.setEnvironment(this.getEnvironment());
-		beanDefinitionReader.setResourceLoader(this);                        //this指的是AbstractXMLApplicationContext，其顶级接口是ResourceLoader。
-		beanDefinitionReader.setEntityResolver(new ResourceEntityResolver(this));            //设置xml中dtd的解析器。
+		//this指的是AbstractXMLApplicationContext，其顶级接口是ResourceLoader。
+		beanDefinitionReader.setResourceLoader(this);
+		//设置xml中dtd的解析器。
+		beanDefinitionReader.setEntityResolver(new ResourceEntityResolver(this));
 
 		// Allow a subclass to provide custom initialization of the reader,
 		// then proceed with actually loading the bean definitions.
 		initBeanDefinitionReader(beanDefinitionReader);
 
 		//主要方法，将BeanDefinition注册到beanFactory中。
+		// 路径解析（ant）
 		loadBeanDefinitions(beanDefinitionReader);
 	}
 

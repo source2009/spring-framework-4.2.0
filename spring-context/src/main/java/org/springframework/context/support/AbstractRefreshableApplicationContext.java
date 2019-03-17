@@ -118,6 +118,7 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 	 */
 	@Override
 	protected final void refreshBeanFactory() throws BeansException {
+		// 如果已经存在。那么销毁之前的。
 		if (hasBeanFactory()) {
 			destroyBeans();
 			//将this.beanFactory属性设置为null。
@@ -132,6 +133,7 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 			//可不看，设置beanFactory是否允许循环依赖，BeanDefinition覆写。
 			customizeBeanFactory(beanFactory);
 			// 初始化 DodumentReader 并进行XML 文件读取及解析
+			// 核心 bean 加载。AbstractXmlApplicationContext.loadBeanDefinitions
 			loadBeanDefinitions(beanFactory);
 			synchronized (this.beanFactoryMonitor) {
 				//设置this.beanFactory属性。
@@ -228,6 +230,7 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 		 * 此属性的含义：是否允许覆盖同名称的不同定义的对象
 		 */
 		if (this.allowBeanDefinitionOverriding != null) {
+			// 默认false，不允许覆盖
 			beanFactory.setAllowBeanDefinitionOverriding(this.allowBeanDefinitionOverriding);
 		}
 		/*
@@ -235,6 +238,7 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 		 * 含义：是否允许bean 之间存在循环依赖
 		 */
 		if (this.allowCircularReferences != null) {
+			// 默认false，不允许循环引用
 			beanFactory.setAllowCircularReferences(this.allowCircularReferences);
 		}
 	}

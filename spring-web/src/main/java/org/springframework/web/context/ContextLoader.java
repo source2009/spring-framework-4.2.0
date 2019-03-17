@@ -171,6 +171,7 @@ public class ContextLoader {
 		// This is currently strictly internal and not meant to be customized
 		// by application developers.
 		try {
+			// 推断在当前类 ContextLoader 同样目录下必定会存在属性文件 ContextLoader.properties、将实例记录在 servletContext 中。
 			ClassPathResource resource = new ClassPathResource(DEFAULT_STRATEGIES_PATH, ContextLoader.class);
 			defaultStrategies = PropertiesLoaderUtils.loadProperties(resource);
 		}
@@ -313,7 +314,9 @@ public class ContextLoader {
 			if (this.context == null) {
 				//创建XmlWebApplicationContext对象，作为mvc中的ApplicationContext
 				//先获取web.xml中的contextClass参数，若有就以这个参数的值创建，没有就创建ContextLoader.propertiex中配置的XmlWebApplicationContext类，反射实例化
-				this.context = createWebApplicationContext(servletContext);     //传入servletContext是为了得到servletContext的contextClass。
+				// 初始化 context
+				//传入servletContext是为了得到servletContext的contextClass。
+				this.context = createWebApplicationContext(servletContext);
 			}
 			if (this.context instanceof ConfigurableWebApplicationContext) {
 				ConfigurableWebApplicationContext cwac = (ConfigurableWebApplicationContext) this.context;
@@ -323,8 +326,10 @@ public class ContextLoader {
 					if (cwac.getParent() == null) {
 						// The context instance was injected without an explicit parent ->
 						// determine parent for root web application context, if any.
-						ApplicationContext parent = loadParentContext(servletContext);  //尝试获取parentContext。
-						cwac.setParent(parent);  //parent为null
+						//尝试获取parentContext。
+						ApplicationContext parent = loadParentContext(servletContext);
+						//parent为null
+						cwac.setParent(parent);
 					}
 					//一些WebApplicationContext的设置如：id，servletContext，configLocation。
 					// 执行自定义的ApplicationContextInitializer
@@ -379,6 +384,7 @@ public class ContextLoader {
 	 * @see ConfigurableWebApplicationContext
 	 */
 	protected WebApplicationContext createWebApplicationContext(ServletContext sc) {
+		// 【重点方法】读完web.xml 中 contextClass 在这个参数。
 		Class<?> contextClass = determineContextClass(sc);
 		//如果contextClass不是ConfigurableWebApplicationContext或者其子类。
 		if (!ConfigurableWebApplicationContext.class.isAssignableFrom(contextClass)) {
@@ -388,10 +394,10 @@ public class ContextLoader {
 		return (ConfigurableWebApplicationContext) BeanUtils.instantiateClass(contextClass);
 	}
 
-	/**
-	 * Return the WebApplicationContext implementation class to use, either the
+	/**her the
 	 * default XmlWebApplicationContext or a custom context class if specified.
 	 * @param servletContext current servlet context
+	 * Return the WebApplicationContext implementation class to use, eit
 	 * @return the WebApplicationContext implementation class to use
 	 * @see #CONTEXT_CLASS_PARAM
 	 * @see org.springframework.web.context.support.XmlWebApplicationContext
@@ -410,6 +416,7 @@ public class ContextLoader {
 		}
 		//使用ContextLoader.properties中配置的org.springframework.web.context.support.XmlWebApplicationContext
 		else {
+			// defaultStrategies 167 行静态代码块执行的文件加载。
 			contextClassName = defaultStrategies.getProperty(WebApplicationContext.class.getName());
 			try {
 				return ClassUtils.forName(contextClassName, ContextLoader.class.getClassLoader());

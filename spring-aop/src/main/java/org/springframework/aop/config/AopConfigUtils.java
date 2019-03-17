@@ -97,6 +97,7 @@ public abstract class AopConfigUtils {
 		}
 	}
 
+	// 强制使用的过程其实也是一个属性设置的过程
 	static void forceAutoProxyCreatorToExposeProxy(BeanDefinitionRegistry registry) {
 		if (registry.containsBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME)) {
 			BeanDefinition definition = registry.getBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME);

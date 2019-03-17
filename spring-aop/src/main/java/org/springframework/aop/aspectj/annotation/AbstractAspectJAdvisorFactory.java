@@ -66,6 +66,7 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
 	 * (there <i>should</i> only be one anyway...)
 	 */
 	@SuppressWarnings("unchecked")
+	// 获取方法上的注解
 	protected static AspectJAnnotation<?> findAspectJAnnotationOnMethod(Method method) {
 		// 设置敏感的注解类
 		Class<?>[] classesToLookFor = new Class<?>[] {

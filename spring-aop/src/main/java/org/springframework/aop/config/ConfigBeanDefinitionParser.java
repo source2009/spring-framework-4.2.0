@@ -303,7 +303,7 @@ class ConfigBeanDefinitionParser implements BeanDefinitionParser {
             this.parseState.push(new AdviceEntry(parserContext.getDelegate().getLocalName(adviceElement)));
 
             // create the method factory bean
-            //获取advise指定的方法
+            //获取advise指定的方法 用于在指定advice(aop:aspect 的 ref 属性)中得到Method 对象。入口在 setBeanFactory 方法
             RootBeanDefinition methodDefinition = new RootBeanDefinition(MethodLocatingFactoryBean.class);
             methodDefinition.getPropertyValues().add("targetBeanName", aspectName);
             methodDefinition.getPropertyValues().add("methodName", adviceElement.getAttribute("method"));     //advise中指定的method的名字

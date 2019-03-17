@@ -666,6 +666,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
         // Configure the bean factory with context callbacks.
         //ApplicationContextAwareProcessor的invokeAwareInterfaces方法会对实现指定接口的bean调用指定的set方法
         //如：EnvironmentAware，ResourceLoaderAware，ApplicationEventPublisherAware，MessageSourceAware，ApplicationContextAware等接口。
+        // 环境注入。
         beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));
 
         //ignoreDependencyInterface忽略对这些接口的自动装配，比如Aware这些是要做独立处理的，不适合通用的方法
@@ -887,7 +888,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
         beanFactory.freezeConfiguration();          //表明注册的bean定义将不会被修改
 
         // Instantiate all remaining (non-lazy-init) singletons.
-        //预实例化非延迟加载单例。
+        //预实例化非延迟加载单例。DefaultListableBeanFactory.preInstantiateSingletons
         beanFactory.preInstantiateSingletons();
     }
 
@@ -1321,6 +1322,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
     @Override
     public Resource[] getResources(String locationPattern) throws IOException {
+        // 构造器中初始化。PathMatchingResourcePatternResolver对象
         return this.resourcePatternResolver.getResources(locationPattern);
     }
 

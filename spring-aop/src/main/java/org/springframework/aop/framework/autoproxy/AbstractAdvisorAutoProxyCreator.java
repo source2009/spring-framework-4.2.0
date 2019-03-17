@@ -89,6 +89,7 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
 		 * 先从cachedAdvisorBeanNames缓冲区中获取advisor的名字
 		 * 在用getBean根据名字获取bean。
 		 */
+		// TODO  AnnotationAwareAspectJAutoProxyCreator 类完成的。
 		List<Advisor> candidateAdvisors = findCandidateAdvisors();
 		//根据候选advisors，找出可以使用的advisors。即expression匹配的advisor。
 		List<Advisor> eligibleAdvisors = findAdvisorsThatCanApply(candidateAdvisors, beanClass, beanName);
@@ -122,7 +123,7 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
 
 		ProxyCreationContext.setCurrentProxiedBeanName(beanName);
 		try {
-			// 过滤已经得到的 advisors
+			// TODO 过滤已经得到的 advisors
 			return AopUtils.findAdvisorsThatCanApply(candidateAdvisors, beanClass);
 		}
 		finally {

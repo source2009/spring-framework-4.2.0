@@ -272,7 +272,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
             }
 
             // Check if bean definition exists in this factory.
-            // 5、检查 parentBeanFactory
+            // 5、检查 parentBeanFactory（父容器）
             BeanFactory parentBeanFactory = getParentBeanFactory();
             // (containsBeanDefinition 函数)如果 beanDefinitionMap 中就是在所有已经加载的类不包括 beanName 则尝试从 parentBeanFactory 中检测。
             if (parentBeanFactory != null && !containsBeanDefinition(beanName)) {
@@ -302,6 +302,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
                 checkMergedBeanDefinition(mbd, beanName, args);
 
                 // Guarantee initialization of beans that the current bean depends on. depend-on属性
+                // bean 可以由 depend-on 属性配置依赖的bean。Sprint 会首先初始化依赖的bean。
                 String[] dependsOn = mbd.getDependsOn();
                 // 7、寻找依赖。若存在依赖则需要递归实例化依赖Bean。
                 if (dependsOn != null) {

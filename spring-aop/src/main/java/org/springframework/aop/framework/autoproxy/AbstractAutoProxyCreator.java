@@ -467,7 +467,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
         }
         //用DefaultAopProxyFactory创建AopProxy，根据条件选择Cglib或者Jdk代理。
         //具体在DefaultAopProxyFactory的createAopProxy方法里。
-        //重要方法
+        // （1）重要方法
         //首先是生成合适的AopProxy对象，然后用AopProxy生产代理类class和对象。
         return proxyFactory.getProxy(getProxyClassLoader());
     }

@@ -258,6 +258,7 @@ public abstract class AopUtils {
 	 * @return sublist of Advisors that an apply to an object of the given class
 	 * (may be the incoming List as-is)
 	 */
+	// 寻找所有增强器中适用于当前class 的增强器、引介增强与普通增强是不一样的。要分开处理。核心匹配逻辑在 canApply 函数
 	public static List<Advisor> findAdvisorsThatCanApply(List<Advisor> candidateAdvisors, Class<?> clazz) {
 		if (candidateAdvisors.isEmpty()) {
 			return candidateAdvisors;
@@ -277,7 +278,7 @@ public abstract class AopUtils {
 				// already processed
 				continue;
 			}
-			//重点方法，这里的canApply方法
+			//(1)重点方法，这里的canApply方法
 			if (canApply(candidate, clazz, hasIntroductions)) {
 				eligibleAdvisors.add(candidate);
 			}

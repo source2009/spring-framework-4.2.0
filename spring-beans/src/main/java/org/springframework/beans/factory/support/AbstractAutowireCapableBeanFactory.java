@@ -442,7 +442,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
         try {
             // Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
-            //若实现了InstantiationAwareBeanPostProcessors接口，则执行前后置逻辑。
+            //如果 InstantiationAwareBeanPostProcessors 返回的不是空，那么将不会继续执行剩下的Spring 初始化流程。此接口用于初始化自定义bean。
             Object bean = resolveBeforeInstantiation(beanName, mbdToUse);
             if (bean != null) {
                 return bean;
@@ -1176,6 +1176,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
      * @param mbd      the bean definition for the bean
      * @param bw       BeanWrapper with bean instance
      */
+    // 对bean 进行填充。将各个属性值注入，其中，可能存在依赖于其他bean 属性。则会递归初始化依赖bean
     protected void populateBean(String beanName, RootBeanDefinition mbd, BeanWrapper bw) {
         PropertyValues pvs = mbd.getPropertyValues();
 

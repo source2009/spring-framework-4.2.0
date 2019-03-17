@@ -405,7 +405,8 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
         try {
             //获得Document对象。
             Document doc = doLoadDocument(inputSource, resource);
-            return registerBeanDefinitions(doc, resource);       //返回注册的BeanDefinition的个数。
+            //返回注册的BeanDefinition的个数。
+            return registerBeanDefinitions(doc, resource);
         } catch (BeanDefinitionStoreException ex) {
             throw ex;
         } catch (SAXParseException ex) {
@@ -436,7 +437,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
      * @see #setDocumentLoader
      * @see DocumentLoader#loadDocument
      */
-    protected Document doLoadDocument(InputSource inputSource, Resource resource) throws Exception {
+    protected Document doLoadloadDocumentDocument(InputSource inputSource, Resource resource) throws Exception {
         return this.documentLoader.loadDocument(inputSource, getEntityResolver(), this.errorHandler,
                 getValidationModeForResource(resource), isNamespaceAware());
     }

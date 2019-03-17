@@ -436,6 +436,7 @@ public class BeanDefinitionParserDelegate {
                 try {
                     // 如果不存在beanName 那么根据Spring 中提供的命名规则为当前Bean 生成对应的 beanName.
                     if (containingBean != null) {
+                        // Spring 同时会把类名作为其别名。
                         beanName = BeanDefinitionReaderUtils.generateBeanName(
                                 beanDefinition, this.readerContext.getRegistry(), true);
                     } else {
@@ -516,7 +517,7 @@ public class BeanDefinitionParserDelegate {
             parseBeanDefinitionAttributes(ele, beanName, containingBean, bd);
             // 提取 description
             bd.setDescription(DomUtils.getChildElementValueByTagName(ele, DESCRIPTION_ELEMENT));
-            // 解析元数据
+            // 解析元数据（可以将任意的元素附到对应的 beanDefinition 上）
             parseMetaElements(ele, bd);
             // 解析lockup-method 属性
             parseLookupOverrideSubElements(ele, bd.getMethodOverrides());
@@ -658,7 +659,9 @@ public class BeanDefinitionParserDelegate {
                 Element metaElement = (Element) node;
                 String key = metaElement.getAttribute(KEY_ATTRIBUTE);
                 String value = metaElement.getAttribute(VALUE_ATTRIBUTE);
+                // 就是一个key、value 的载体，无他。
                 BeanMetadataAttribute attribute = new BeanMetadataAttribute(key, value);
+                // sourceExtractor 默认NullSourceExtractor 返回的是空
                 attribute.setSource(extractSource(metaElement));
                 attributeAccessor.addMetadataAttribute(attribute);
             }

@@ -93,6 +93,7 @@ public abstract class AopNamespaceUtils {
             // 对于 expose-proxy 属性的处理。
             boolean exposeProxy = Boolean.valueOf(sourceElement.getAttribute(EXPOSE_PROXY_ATTRIBUTE));
             if (exposeProxy) {
+                // 强制使用的过程其实也是一个属性设置的过程
                 AopConfigUtils.forceAutoProxyCreatorToExposeProxy(registry);
             }
         }

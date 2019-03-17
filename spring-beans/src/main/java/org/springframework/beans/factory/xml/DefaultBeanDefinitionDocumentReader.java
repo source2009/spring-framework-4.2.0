@@ -122,12 +122,15 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
         // this behavior emulates a stack of delegates without actually necessitating one.
         BeanDefinitionParserDelegate parent = this.delegate;
         this.delegate = createDelegate(getReaderContext(), root, parent);
-
+        // 默认的命名空间
         if (this.delegate.isDefaultNamespace(root)) {
+            // 检查 profile 属性
             String profileSpec = root.getAttribute(PROFILE_ATTRIBUTE);
             if (StringUtils.hasText(profileSpec)) {
+                // profile 属性可以以，分割
                 String[] specifiedProfiles = StringUtils.tokenizeToStringArray(
                         profileSpec, BeanDefinitionParserDelegate.MULTI_VALUE_ATTRIBUTE_DELIMITERS);
+                // AbstractEnvironment.acceptsProfiles:
                 if (!getReaderContext().getEnvironment().acceptsProfiles(specifiedProfiles)) {
                     return;
                 }
@@ -262,6 +265,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
      * Process the given alias element, registering the alias with the registry.
      */
     protected void processAliasRegistration(Element ele) {
+        // registry 其实就是 DefaultListableBeanFactory 它实现了BeanDefinitionRegistry 接口。
         String name = ele.getAttribute(NAME_ATTRIBUTE);
         String alias = ele.getAttribute(ALIAS_ATTRIBUTE);
         boolean valid = true;
@@ -275,6 +279,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
         }
         if (valid) {
             try {
+                // registerAlias 方法的实现在 SimpleAliasRegistry.
                 getReaderContext().getRegistry().registerAlias(name, alias);
             } catch (Exception ex) {
                 getReaderContext().error("Failed to register alias '" + alias +
@@ -289,7 +294,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
      * and registering it with the registry.
      */
     protected void processBeanDefinition(Element ele, BeanDefinitionParserDelegate delegate) {
-        //先解析xml生成BeanDefinition，委托，parseBeanDefinitionElement 进行元素解析，最后返回 BeanDefinitionHolder 类型的实例。
+        // TODO 先解析xml生成BeanDefinition，委托，parseBeanDefinitionElement 进行元素解析，最后返回 BeanDefinitionHolder 类型的实例。
         BeanDefinitionHolder bdHolder = delegate.parseBeanDefinitionElement(ele);
         if (bdHolder != null) {
             //装饰bdHolder，不太重要

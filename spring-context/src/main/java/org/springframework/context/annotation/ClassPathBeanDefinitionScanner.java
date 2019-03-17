@@ -245,19 +245,25 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 		Assert.notEmpty(basePackages, "At least one base package must be specified");
 		Set<BeanDefinitionHolder> beanDefinitions = new LinkedHashSet<BeanDefinitionHolder>();
 		for (String basePackage : basePackages) {
+			// 扫描 basePackage 路径下Java 文件
 			Set<BeanDefinition> candidates = findCandidateComponents(basePackage);
 			for (BeanDefinition candidate : candidates) {
 				ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(candidate);
-				candidate.setScope(scopeMetadata.getScopeName());   //设置bean的scope，常见的是singleton
-				String beanName = this.beanNameGenerator.generateBeanName(candidate, this.registry);  //使用nameGenerator生成beanName，若注解中设置了则会被使用
+				//设置bean的scope，常见的是singleton
+				candidate.setScope(scopeMetadata.getScopeName());
+				//使用nameGenerator生成beanName，若注解中设置了则会被使用
+				String beanName = this.beanNameGenerator.generateBeanName(candidate, this.registry);
 				if (candidate instanceof AbstractBeanDefinition) {
 					postProcessBeanDefinition((AbstractBeanDefinition) candidate, beanName);
 				}
 				if (candidate instanceof AnnotatedBeanDefinition) {
+					// 如果是 AnnotatedBeanDefinition 类型的 bean。需要检测下常用注解。如：Primary、Lazy 等。
 					AnnotationConfigUtils.processCommonDefinitionAnnotations((AnnotatedBeanDefinition) candidate);
 				}
+				// 检测当前base。是否已经注册
 				if (checkCandidate(beanName, candidate)) {
 					BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(candidate, beanName);
+					// 如果当前 bean 是用于生成代理的bean. 那么需要进一步处理。
 					definitionHolder = AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);
 					beanDefinitions.add(definitionHolder);
 					//注册BeanDefinition

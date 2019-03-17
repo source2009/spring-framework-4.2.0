@@ -195,15 +195,18 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
 				resolvePlaceholders(value) : resolveRequiredPlaceholders(value));
 	}
 
+	// createPlaceholderHelper
 	private PropertyPlaceholderHelper createPlaceholderHelper(boolean ignoreUnresolvablePlaceholders) {
 		return new PropertyPlaceholderHelper(this.placeholderPrefix, this.placeholderSuffix,
 				this.valueSeparator, ignoreUnresolvablePlaceholders);
 	}
 
 	private String doResolvePlaceholders(String text, PropertyPlaceholderHelper helper) {
+		// Placeholder 接口依然是策略模式的体现
 		return helper.replacePlaceholders(text, new PropertyPlaceholderHelper.PlaceholderResolver() {
 			@Override
 			public String resolvePlaceholder(String placeholderName) {
+				// TODO 重点方法。正确解析。placeholder 的替换其实就是字符串操作。
 				return getPropertyAsRawString(placeholderName);
 			}
 		});

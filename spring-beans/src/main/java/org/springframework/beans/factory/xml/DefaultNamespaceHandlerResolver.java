@@ -110,6 +110,10 @@ public class DefaultNamespaceHandlerResolver implements NamespaceHandlerResolver
 	 * @return the located {@link NamespaceHandler}, or {@code null} if none found
 	 */
 	@Override
+	/**
+	 * Spring 其实使用 Map 保存映射关系。key就是命名空间uri. value 是NamespaceHandler 对象或是 Class完整对象。
+	 * 如果发现类名。那么用反射的方法进行初始化。如果是NamespaceHandler 对象。那么直接返回。
+	 */
 	public NamespaceHandler resolve(String namespaceUri) {
 		Map<String, Object> handlerMappings = getHandlerMappings();
 		Object handlerOrClassName = handlerMappings.get(namespaceUri);

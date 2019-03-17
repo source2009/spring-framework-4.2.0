@@ -120,6 +120,7 @@ class PostProcessorRegistrationDelegate {
 
         // Do not initialize FactoryBeans here: We need to leave all regular beans
         // uninitialized to let the bean factory post-processors apply to them!
+        // 核心。获取相应的BeanDefinition 的 name 数组。之后逐一调用getBean方法获取到bean（初始化）。
         String[] postProcessorNames =
                 beanFactory.getBeanNamesForType(BeanFactoryPostProcessor.class, true, false);
 

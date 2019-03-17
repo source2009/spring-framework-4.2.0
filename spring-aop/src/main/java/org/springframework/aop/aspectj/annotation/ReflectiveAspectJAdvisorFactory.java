@@ -93,6 +93,7 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
 
 
 	@Override
+	// 增强器的获取。
 	public List<Advisor> getAdvisors(MetadataAwareAspectInstanceFactory maaif) {
 		// 获取标记 AspectJ 的类
 		final Class<?> aspectClass = maaif.getAspectMetadata().getAspectClass();
@@ -108,7 +109,7 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
 
 		final List<Advisor> advisors = new LinkedList<Advisor>();
 		for (Method method : getAdvisorMethods(aspectClass)) {
-			// 普通增强器的获取
+			// （1）普通增强器的获取
 			Advisor advisor = getAdvisor(method, lazySingletonAspectInstanceFactory, advisors.size(), aspectName);
 			if (advisor != null) {
 				advisors.add(advisor);
@@ -125,6 +126,7 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
 		// Find introduction fields.
 		// 获取 DeclareParents 注解
 		for (Field field : aspectClass.getDeclaredFields()) {
+			// 获取 DeclareParents 注解的增强
 			Advisor advisor = getDeclareParentsAdvisor(field);
 			if (advisor != null) {
 				advisors.add(advisor);
@@ -179,7 +181,7 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
 			int declarationOrderInAspect, String aspectName) {
 
 		validate(aif.getAspectMetadata().getAspectClass());
-		// 切点信息的获取
+		// （1）切点信息的获取就是指定注解的表达式信息的获取 如：@Before("test()")
 		AspectJExpressionPointcut ajexp =
 				getPointcut(candidateAdviceMethod, aif.getAspectMetadata().getAspectClass());
 		if (ajexp == null) {
@@ -190,8 +192,9 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
 				this, ajexp, aif, candidateAdviceMethod, declarationOrderInAspect, aspectName);
 	}
 
+	//切点信息的获取就是指定注解的表达式信息的获取
 	private AspectJExpressionPointcut getPointcut(Method candidateAdviceMethod, Class<?> candidateAspectClass) {
-		// 获取方法上的注解
+		// (1)获取方法上的注解
 		AspectJAnnotation<?> aspectJAnnotation =
 				AbstractAspectJAdvisorFactory.findAspectJAnnotationOnMethod(candidateAdviceMethod);
 		if (aspectJAnnotation == null) {
@@ -232,7 +235,7 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
 		}
 
 		AbstractAspectJAdvice springAdvice;
-
+		// 根据不同的注解类型封装不同的增强器
 		switch (aspectJAnnotation.getAnnotationType()) {
 			case AtBefore:
 				springAdvice = new AspectJMethodBeforeAdvice(candidateAdviceMethod, ajexp, aif);

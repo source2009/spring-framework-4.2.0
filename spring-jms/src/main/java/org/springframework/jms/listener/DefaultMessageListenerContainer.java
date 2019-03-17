@@ -1113,16 +1113,20 @@ public class DefaultMessageListenerContainer extends AbstractPollingMessageListe
 				synchronized (lifecycleMonitor) {
 					boolean interrupted = false;
 					boolean wasWaiting = false;
+					// 如果当前任务处于激活状态但是却给暂时终止的命令
 					while ((active = isActive()) && !isRunning()) {
 						if (interrupted) {
 							throw new IllegalStateException("Thread was interrupted while waiting for " +
 									"a restart of the listener container, but container is still stopped");
 						}
 						if (!wasWaiting) {
+							// 如果并非处于等待状态则说明第一次执行，需要将激活任务数量减少。
 							decreaseActiveInvokerCount();
 						}
+						// 开始进入等待状态。等待任务的恢复命令
 						wasWaiting = true;
 						try {
+							// 通过wait 等待。也就是等待 notify 或 notifyAll
 							lifecycleMonitor.wait();
 						}
 						catch (InterruptedException ex) {
@@ -1131,6 +1135,7 @@ public class DefaultMessageListenerContainer extends AbstractPollingMessageListe
 							interrupted = true;
 						}
 					}
+					// 正常处理流程
 					if (wasWaiting) {
 						activeInvokerCount++;
 					}
@@ -1139,15 +1144,19 @@ public class DefaultMessageListenerContainer extends AbstractPollingMessageListe
 					}
 				}
 				if (active) {
+					// 消息接收的处理
 					messageReceived = (invokeListener() || messageReceived);
 				}
 			}
 			return messageReceived;
 		}
 
+		// 消息接收的处理
 		private boolean invokeListener() throws JMSException {
+			// 初始化资源包括首次创建的时候创建Session 与 consumer
 			initResourcesIfNecessary();
 			boolean messageReceived = receiveAndExecute(this, this.session, this.consumer);
+			// 改变标志位，信息成功处理
 			this.lastMessageSucceeded = true;
 			return messageReceived;
 		}

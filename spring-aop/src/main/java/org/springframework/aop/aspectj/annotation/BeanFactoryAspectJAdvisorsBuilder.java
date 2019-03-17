@@ -79,6 +79,7 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 	 * @return the list of {@link org.springframework.aop.Advisor} beans
 	 * @see #isEligibleBean
 	 */
+	// 获取bean 的注解增强功能
 	public List<Advisor> buildAspectJAdvisors() {
 		List<String> aspectNames = null;
 
@@ -112,6 +113,7 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 							MetadataAwareAspectInstanceFactory factory =
 									new BeanFactoryAspectInstanceFactory(this.beanFactory, beanName);
 							// 解析标记 AspectJ 注解中的增强方法。
+							// TODO ReflectiveAspectJAdvisorFactory 重要方法（增强器的获取）
 							List<Advisor> classAdvisors = this.advisorFactory.getAdvisors(factory);
 							if (this.beanFactory.isSingleton(beanName)) {
 								this.advisorsCache.put(beanName, classAdvisors);
